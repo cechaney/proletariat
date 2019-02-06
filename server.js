@@ -9,7 +9,7 @@ const proletariat = require(__dirname + '/src/proletariat');
 const script = fs.readFileSync(`${__dirname}/src/work.js`, 'utf8');
 
 const pool = new proletariat.WorkerPool(
-  {maxWorkers: 3},
+  {maxWorkers: 100},
   script);
 
 app.get('/', (req, res) => {

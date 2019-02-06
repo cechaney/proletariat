@@ -1,9 +1,13 @@
 const {  parentPort, workerData } = require('worker_threads');
 
-parentPort.on('message', (value) => {
-  render(value);
+parentPort.on('message', (workItem) => {
+  render(workItem);
 });
 
-function render(value){
-  parentPort.postMessage(`<h1>This is rendered markup: ${value.name}</h1>`);
+function render(workItem){
+
+  workItem.output = `<h1>This is rendered markup: ${workItem.data}</h1>`
+
+  parentPort.postMessage(workItem);
+
 }
