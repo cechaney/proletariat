@@ -1,7 +1,6 @@
 const {  parentPort, workerData } = require('worker_threads');
 
 parentPort.on('message', (value) => {
-  console.log('Got a message from the parent to start work');
   render(value);
 });
 

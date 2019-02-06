@@ -11,9 +11,18 @@ module.exports = {
 
     constructor(config, script){
 
-      if(config && config.maxWorkers & !isNaN(config.maxWorkers)){
-        maxWorkers = config.maxWorkers;
+      if(config){
+
+        if(config.maxWorkers & !isNaN(config.maxWorkers)){
+          maxWorkers = config.maxWorkers;
+        }
+
+        if(config.workerAquireTimeout){
+          workerAquireTimeout = config.workerAquireTimeout;
+        }
+
       }
+
 
       for(var i = 0; i < maxWorkers; i++){
 
@@ -34,9 +43,27 @@ module.exports = {
 
       if(work === undefined){
 
-        return new Promise((resolve, reject) => {
-          reject('no worker available');
-        });
+        const startTime = Date();
+        let endTime = Date();
+
+        let milliDiff = endTime - startTime;
+
+        while (work === undefined){
+
+          work = workerPool.shift();
+
+          milliDiff = Date() - startTime;
+
+          if(milliDiff > workerAquireTimeout){
+
+            return new Promise((resolve, reject) => {
+              reject('no worker available');
+              console.log('Failed to get worker: timeout!');
+            });
+
+          }
+
+        }
 
       }
 
@@ -61,7 +88,7 @@ module.exports = {
         work.on('exit', (code) => {
 
           workerpool.push(work);
-          
+
           if(code != 0){
             reject(`Worker stopped with exit code ${code}`);
           }
