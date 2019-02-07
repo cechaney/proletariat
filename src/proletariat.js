@@ -102,12 +102,6 @@ module.exports = {
 
       });
 
-
-
-    }
-
-    getResult(id){
-
     }
 
   }
