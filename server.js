@@ -16,11 +16,11 @@ app.get('/', (req, res) => {
 
   const name = req.query.name;
 
-  id = pool.exec({name: name});
-
-  result = pool.getResult(id);
-
-  res.send(result);
+  pool.exec({name: name}).then((result) =>{
+    res.send(result);
+  }).catch((reason)=>{
+    res.statusCode = 500;
+  });
 
 });
 

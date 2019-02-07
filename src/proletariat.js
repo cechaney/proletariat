@@ -6,7 +6,6 @@ let workerAquireTimeout = 5000;
 let workFinishTimeout = 5000;
 
 const pool = [];
-const queue = new Map();
 
 function getWorker(){
 
@@ -20,8 +19,13 @@ function getWorker(){
 
 }
 
-function releaseWorker(work){
-  pool.push(work);
+function releaseWorker(w){
+
+  w.removeAllListeners('message');
+  w.removeAllListeners('error');
+  w.removeAllListeners('exit');
+
+  pool.push(w);
 }
 
 
@@ -54,27 +58,32 @@ module.exports = {
           workerData: config
         });
 
+        releaseWorker(w);
+
+      }
+
+    }
+
+    exec(data){
+
+      return new Promise((resolve, reject) => {
+
+        const w = getWorker();
+
         w.on('message', (result) => {
 
-          console.log(result);
-
-          let workItem = queue.get(result.id);
-
-          workItem.output = result.output;
-
-          workItem.done = true;
-
-          queue.set(result.id, workItem);
-
           releaseWorker(w);
+
+          resolve(result);
 
         })
 
         w.on('error', (error) => {
 
-          console.log(`Worker script failed: ${error}`);
-
           releaseWorker(w);
+
+          reject(error);
+
         });
 
         w.on('exit', (code) => {
@@ -85,30 +94,19 @@ module.exports = {
 
           releaseWorker(w);
 
+          reject(code);
+
         });
 
-        releaseWorker(w);
+        w.postMessage(data);
 
-      }
+      });
+
+
 
     }
 
-    exec(data){
-
-      const w = getWorker();
-
-      let workItem = {
-        id: uniqid(),
-        done: false,
-        data: data,
-        output: null
-      }
-
-      queue.set(workItem.id, workItem);
-
-      w.postMessage(workItem);
-
-      return workItem.id;
+    getResult(id){
 
     }
 

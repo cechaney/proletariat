@@ -1,14 +1,10 @@
 const {  parentPort, workerData } = require('worker_threads');
 
-parentPort.on('message', (workItem) => {
+parentPort.on('message', (data) => {
 
-  console.log('got message in worker');
+  const output = `<h1>${data.name}, this is rendered markup</h1>`
 
-  workItem.output = `<h1>${workItem.data.name}, this is rendered markup</h1>`
-
-  parentPort.postMessage(workItem);
-
-  console.log('sent message back');
+  parentPort.postMessage(output);
 
   return;
 
