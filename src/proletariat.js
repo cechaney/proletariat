@@ -5,44 +5,25 @@ let maxWorkers = 1;
 let workerAquireTimeout = 5000;
 let workFinishTimeout = 5000;
 
-const workerpool = [];
-const inProgress = new Map();
+const pool = [];
+const queue = new Map();
 
 function getWorker(){
 
-  return new Promise((resolve, reject) => {
+  let w = pool.shift();
 
-    let w = workerpool.shift();
+  if(w === undefined){
+    throw(new Error('Worker queue is full'));
+  }
 
-    if(w === undefined){
-
-      const startTime = new Date().getTime();
-
-      while (w === undefined){
-
-        const milliDiff = new Date().getTime() - startTime;
-
-        if(milliDiff > workerAquireTimeout){
-          reject('Worker aquire timed out');
-        }
-
-        w = workerpool.shift();
-
-      }
-
-      resolve(w);
-
-    } else {
-      resolve(w);
-    }
-
-  });
+  return w;
 
 }
 
 function releaseWorker(work){
-  workerpool.push(work);
+  pool.push(work);
 }
+
 
 module.exports = {
 
@@ -68,34 +49,45 @@ module.exports = {
 
       for(var i = 0; i < maxWorkers; i++){
 
-        let work = new Worker(script, {
+        let w = new Worker(script, {
           eval: true,
           workerData: config
         });
 
-        work.on('message', (result) => {
+        w.on('message', (result) => {
 
-          let workItem = inProgress.get(result.id);
+          console.log(result);
+
+          let workItem = queue.get(result.id);
 
           workItem.output = result.output;
 
           workItem.done = true;
 
+          queue.set(result.id, workItem);
+
+          releaseWorker(w);
+
         })
 
-        work.on('error', (error) => {
+        w.on('error', (error) => {
+
           console.log(`Worker script failed: ${error}`);
+
+          releaseWorker(w);
         });
 
-        work.on('exit', (code) => {
+        w.on('exit', (code) => {
 
           if(code != 0){
             console.log(`Worker stopped with exit code ${code}`);
           }
 
+          releaseWorker(w);
+
         });
 
-        releaseWorker(work);
+        releaseWorker(w);
 
       }
 
@@ -103,43 +95,20 @@ module.exports = {
 
     exec(data){
 
-      return new Promise((resolve, reject) => {
+      const w = getWorker();
 
-        getWorker().then((work) => {
+      let workItem = {
+        id: uniqid(),
+        done: false,
+        data: data,
+        output: null
+      }
 
-          let workItem = {
-            id: uniqid(),
-            done: false,
-            data: data,
-            output: null
-          }
+      queue.set(workItem.id, workItem);
 
-          inProgress.set(workItem.id, workItem);
+      w.postMessage(workItem);
 
-          new Promise((resolve, reject) =>{
-
-            work.postMessage(workItem);
-
-            resolve(workItem.id);
-
-          }).then((value) => {
-            
-            while(!inProgress.get(workItem.id).output){
-
-            }
-
-            resolve(inProgress.get(workItem.id).output);
-          }).catch((reason) =>{
-            reject(reason);
-          });
-
-
-
-        }).catch((reason) => {
-          reject(reason);
-        });
-
-      });
+      return workItem.id;
 
     }
 
