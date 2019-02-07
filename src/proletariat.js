@@ -3,7 +3,7 @@ const uniqid = require('uniqid');
 
 let maxWorkers = 1;
 let workerAquireTimeout = 5000;
-let workFinishTimeout = 30000;
+let workFinishTimeout = 5000;
 
 const workerpool = [];
 const inProgress = new Map();
@@ -12,28 +12,28 @@ function getWorker(){
 
   return new Promise((resolve, reject) => {
 
-    let work = workerpool.shift();
+    let w = workerpool.shift();
 
-    if(work === undefined){
+    if(w === undefined){
 
-      const startTime = Date().getTime();
+      const startTime = new Date().getTime();
 
-      while (work === undefined){
+      while (w === undefined){
 
-        const milliDiff = Date().getTime() - startTime;
+        const milliDiff = new Date().getTime() - startTime;
 
         if(milliDiff > workerAquireTimeout){
           reject('Worker aquire timed out');
         }
 
-        work = workerpool.shift();
+        w = workerpool.shift();
 
       }
 
-      resolve(work);
+      resolve(w);
 
     } else {
-      resolve(work);
+      resolve(w);
     }
 
   });
@@ -78,6 +78,7 @@ module.exports = {
           let workItem = inProgress.get(result.id);
 
           workItem.output = result.output;
+
           workItem.done = true;
 
         })
@@ -115,28 +116,24 @@ module.exports = {
 
           inProgress.set(workItem.id, workItem);
 
-          work.postMessage(workItem);
+          new Promise((resolve, reject) =>{
 
-          const startTime = new Date().now();
+            work.postMessage(workItem);
 
-          while (inProgress.get(workItem.id).done === false){
+            resolve(workItem.id);
 
-            const milliDiff = new Date().now() - startTime;
+          }).then((value) => {
+            
+            while(!inProgress.get(workItem.id).output){
 
-            if(milliDiff > workFinishTimeout){
-              reject('Worker timed out');
-              break;
-             }
+            }
 
-          }
-
-          inProgress.delete(workItem);
-
-          if(result !== null){
             resolve(inProgress.get(workItem.id).output);
-          } else {
-            reject('No output from worker')
-          }
+          }).catch((reason) =>{
+            reject(reason);
+          });
+
+
 
         }).catch((reason) => {
           reject(reason);
