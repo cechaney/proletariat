@@ -3,7 +3,6 @@ const uniqid = require('uniqid');
 
 let maxWorkers = 1;
 let workerAquireTimeout = 5000;
-let workFinishTimeout = 5000;
 
 const pool = [];
 
@@ -12,7 +11,21 @@ function getWorker(){
   let w = pool.shift();
 
   if(w === undefined){
-    throw(new Error('Worker queue is full'));
+
+    console.log('overran the queue!');
+
+    const startTime = new Date().getTime();
+
+    let diff = 0;
+
+    while(diff <= workerAquireTimeout || w !== undefined){
+      w = pool.shift;
+    }
+
+    if(w === undefined){
+      throw(new Error('Worker queue is full'));
+    }
+
   }
 
   return w;
@@ -45,10 +58,6 @@ module.exports = {
           workerAquireTimeout = config.workerAquireTimeout;
         }
 
-        if(config.workFinishTimeout){
-          workFinishTimeout = config.workFinishTimeout;
-        }
-
       }
 
       for(var i = 0; i < maxWorkers; i++){
@@ -58,7 +67,7 @@ module.exports = {
           workerData: config
         });
 
-        releaseWorker(w);
+        pool.push(w);
 
       }
 
