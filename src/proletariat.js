@@ -18,7 +18,7 @@ function getWorker(){
 
     let diff = 0;
 
-    while(diff <= workerAquireTimeout || w !== undefined){
+    while(diff <= workerAquireTimeout && w === undefined){
       w = pool.shift;
     }
 
