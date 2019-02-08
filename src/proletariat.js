@@ -22,7 +22,7 @@ function getWorker(){
       w = pool.shift;
     }
 
-    if(w === undefined){
+    if(w === undefined || diff >= workerAquireTimeout){
       throw(new Error('Worker queue is full'));
     }
 
