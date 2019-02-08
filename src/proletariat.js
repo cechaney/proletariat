@@ -1,5 +1,5 @@
 const {Worker} = require('worker_threads');
-const uniqid = require('uniqid');
+const EventEmitter = require('events').EventEmitter;
 
 let maxWorkers = 1;
 let workerAquireTimeout = 5000;
@@ -59,6 +59,8 @@ module.exports = {
         }
 
       }
+
+      EventEmitter.defaultMaxListeners = config.maxWorkers * 3;
 
       for(var i = 0; i < maxWorkers; i++){
 
