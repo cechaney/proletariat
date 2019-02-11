@@ -1,12 +1,11 @@
 const fs = require('fs');
 const express = require('express');
+const proletariat = require('../../proletariat');
 
 const app = express();
 const port = 3000;
 
-const proletariat = require(__dirname + '/src/proletariat');
-
-const script = fs.readFileSync(`${__dirname}/src/work.js`, 'utf8');
+const script = fs.readFileSync(`../work.js`, 'utf8');
 
 const pool = new proletariat.WorkerPool(
   {maxWorkers: 100},

@@ -1,14 +1,30 @@
 {
   "name": "proletariat",
   "version": "1.0.0",
-  "description": "",
+  "description": "Super-simple Node.js worker thread pool",
   "main": "index.js",
   "scripts": {
-    "start": "NODE_ENV=production node ./server",
+    "demo": "NODE_ENV=production node src/example/server",
+    "express-demo": "NODE_ENV=production node src/example/server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-  }
+  "dependencies": {},
+  "author": "Christopher Chaney (https://github.com/cechaney)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cechaney/proletariat/issues"
+  },
+  "engines": {
+    "node": ">=11.8.0"
+  },
+  "homepage": "https://github.com/cechaney/proletariat",
+  "keywords": [
+    "pool",
+    "worker",
+    "workers",
+    "thread",
+    "threads",
+    "worker_threads",
+    "parallel"
+  ]
 }
