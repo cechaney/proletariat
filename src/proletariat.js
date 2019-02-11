@@ -17,7 +17,7 @@ function getWorker(){
     }, workerAquireTimeout);
 
     if(w === undefined){
-      throw new Error('Worker queue is full, and timed out waiting for a free worker.');
+      throw new Error('No workers available');
     }
 
   }
