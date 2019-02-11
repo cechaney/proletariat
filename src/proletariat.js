@@ -2,7 +2,7 @@ const {Worker} = require('worker_threads');
 const EventEmitter = require('events').EventEmitter;
 
 let maxWorkers = 1;
-let workerAquireTimeout = 5000;
+let workerAquireTimeout = 100;
 
 const pool = [];
 
@@ -12,18 +12,12 @@ function getWorker(){
 
   if(w === undefined){
 
-    console.log('overran the queue!');
-
-    const startTime = new Date().getTime();
-
-    let diff = 0;
-
-    while(diff <= workerAquireTimeout && w === undefined){
+    setTimeout(() =>{
       w = pool.shift;
-    }
+    }, workerAquireTimeout);
 
-    if(w === undefined || diff >= workerAquireTimeout){
-      throw(new Error('Worker queue is full'));
+    if(w === undefined){
+      throw new Error('Worker queue is full, and timed out waiting for a free worker.');
     }
 
   }
@@ -39,6 +33,7 @@ function releaseWorker(w){
   w.removeAllListeners('exit');
 
   pool.push(w);
+
 }
 
 
@@ -99,13 +94,11 @@ module.exports = {
 
         w.on('exit', (code) => {
 
-          if(code != 0){
-            console.log(`Worker stopped with exit code ${code}`);
-          }
-
           releaseWorker(w);
 
-          reject(code);
+          if(code != 0){
+            reject(`Worker exited with non 0 code: ${code}`);
+          }
 
         });
 
