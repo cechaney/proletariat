@@ -38,7 +38,6 @@ function releaseWorker(w){
 
 
 module.exports = {
-
   WorkerPool: class {
 
     constructor(config, script){
