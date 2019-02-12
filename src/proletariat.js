@@ -36,7 +36,6 @@ function releaseWorker(w){
 
 }
 
-
 module.exports = {
   WorkerPool: class {
 
@@ -52,6 +51,10 @@ module.exports = {
           workerAquireTimeout = config.workerAquireTimeout;
         }
 
+      }
+
+      if(script == null){
+        throw new Error('No script defined');
       }
 
       EventEmitter.defaultMaxListeners = config.maxWorkers * 3;
@@ -71,9 +74,15 @@ module.exports = {
 
     exec(data){
 
-      return new Promise((resolve, reject) => {
+      let w;
 
-        const w = getWorker();
+      try{
+        w = getWorker();
+      } catch(e){
+        return Promise.reject(e);
+      }
+
+      return new Promise((resolve, reject) => {
 
         w.on('message', (result) => {
 
@@ -107,5 +116,16 @@ module.exports = {
 
     }
 
+    shutdown(){
+
+      pool.forEach((w) => {
+        w.terminate((error, exitCode) =>{
+          //eat shutdown errors
+        });
+      });
+
+    }
+
   }
+
 }

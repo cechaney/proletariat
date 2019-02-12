@@ -6,7 +6,7 @@
   "scripts": {
     "demo": "NODE_ENV=production node src/example/server",
     "express-demo": "NODE_ENV=production node src/example/server",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "dependencies": {},
   "author": "Christopher Chaney (https://github.com/cechaney)",
@@ -26,5 +26,8 @@
     "threads",
     "worker_threads",
     "parallel"
-  ]
+  ],
+  "devDependencies": {
+    "jest": "^24.1.0"
+  }
 }
