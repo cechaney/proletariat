@@ -47,6 +47,10 @@ module.exports = {
 
     }
 
+    getPoolsize(){
+      return this.pool.length;
+    }
+
     getWorker(){
 
       let w = this.pool.shift();
