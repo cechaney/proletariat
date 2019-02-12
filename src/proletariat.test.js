@@ -1,7 +1,6 @@
 const fs = require('fs');
 const proletariat = require('./proletariat');
 
-
 test ('test constructor', () => {
 
   const script = fs.readFileSync(`src/examples/work.js`, 'utf8');
@@ -10,16 +9,17 @@ test ('test constructor', () => {
     {maxWorkers: 1},
     script);
 
-  expect(pool).toBeDefined;
-
   pool.shutdown();
+
+  expect(pool).toBeDefined;
+ 
 
 });
 
 test ('test bad construction with no script', () => {
 
   function makePool(){
-    pool = new proletariat.WorkerPool(
+    const pool = new proletariat.WorkerPool(
       {maxWorkers: 1},
       null)
   }
@@ -37,9 +37,17 @@ test ('test not enough workers', () => {
     script);
 
   pool.exec({name: 'Jack'}).then((result) => {
-    console.log('Jack succeded');
+
+    expect(result).toBe('Hello, Jack!');
+
+    pool.shutdown();
+
   }).catch((reason) => {
-    console.log('Jack failed!');
+
+    console.log(`FAILED: ${reason}`);
+
+    pool.shutdown();
+
   });
 
   // pool.exec({name: 'Jill'}).then((result) => {
@@ -49,8 +57,6 @@ test ('test not enough workers', () => {
   //   expect(reston).toBe('No workers available');
   // });
 
-  setTimeout(() => {
-    pool.shutdown();
-  }, 2000);
+
 
 });

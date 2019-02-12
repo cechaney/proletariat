@@ -4,18 +4,18 @@ const proletariat = require('../../proletariat');
 const script = fs.readFileSync(`../work.js`, 'utf8');
 
 const pool = new proletariat.WorkerPool(
-  {maxWorkers: 100},
+  {maxWorkers: 5},
   script);
 
 const names = ['Jack', 'Jill', 'Hanzel', 'Gretel'];
 const workers = [];
 const output = new Map();
 
-names.forEach((name) =>{
+names.forEach((name) => {
   workers.push(
-    pool.exec({name: name}).then((result) =>{
+    pool.exec({name: name}).then((result) => {
       output.set(name, result);
-    }).catch((reason)=>{
+    }).catch((reason) => {
       console.log(`Worker failed: ${reason}`);
     })
   );

@@ -6,7 +6,7 @@
   "scripts": {
     "demo": "NODE_ENV=production node src/example/server",
     "express-demo": "NODE_ENV=production node src/example/server",
-    "test": "jest"
+    "test": "jest --detectOpenHandles"
   },
   "dependencies": {},
   "author": "Christopher Chaney (https://github.com/cechaney)",
@@ -15,7 +15,7 @@
     "url": "https://github.com/cechaney/proletariat/issues"
   },
   "engines": {
-    "node": ">=11.8.0"
+    "node": ">=11.9.0"
   },
   "homepage": "https://github.com/cechaney/proletariat",
   "keywords": [

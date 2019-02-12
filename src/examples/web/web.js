@@ -8,7 +8,7 @@ const port = 3000;
 const script = fs.readFileSync(`../work.js`, 'utf8');
 
 const pool = new proletariat.WorkerPool(
-  {maxWorkers: 100},
+  {maxWorkers: 5},
   script);
 
 app.get('/', (req, res) => {

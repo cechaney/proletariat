@@ -1,54 +1,25 @@
 const {Worker} = require('worker_threads');
 const EventEmitter = require('events').EventEmitter;
 
-let maxWorkers = 1;
-let workerAquireTimeout = 100;
-
-const pool = [];
-
-function getWorker(){
-
-  let w = pool.shift();
-
-  if(w === undefined){
-
-    setTimeout(() =>{
-      w = pool.shift;
-    }, workerAquireTimeout);
-
-    if(w === undefined){
-      throw new Error('No workers available');
-    }
-
-  }
-
-  return w;
-
-}
-
-function releaseWorker(w){
-
-  w.removeAllListeners('message');
-  w.removeAllListeners('error');
-  w.removeAllListeners('exit');
-
-  pool.push(w);
-
-}
 
 module.exports = {
   WorkerPool: class {
 
     constructor(config, script){
 
+      this.maxWorkers = 1;
+      this.workerAquireTimeout = 100;
+
+      this.pool = [];
+
       if(config){
 
         if(config.maxWorkers && !isNaN(config.maxWorkers)){
-          maxWorkers = config.maxWorkers;
+          this.maxWorkers = config.maxWorkers;
         }
 
         if(config.workerAquireTimeout){
-          workerAquireTimeout = config.workerAquireTimeout;
+          this.workerAquireTimeout = config.workerAquireTimeout;
         }
 
       }
@@ -59,25 +30,46 @@ module.exports = {
 
       EventEmitter.defaultMaxListeners = config.maxWorkers * 3;
 
-      for(var i = 0; i < maxWorkers; i++){
+      for(var i = 0; i < this.maxWorkers; i++){
 
         let w = new Worker(script, {
           eval: true,
           workerData: config
         });
 
-        pool.push(w);
+        this.pool.push(w);
 
       }
 
     }
 
+    getWorker(){
+
+      let w = this.pool.shift();
+    
+      if(w === undefined){
+    
+        setTimeout(() =>{
+          w = this.pool.shift;
+        }, this.workerAquireTimeout);
+    
+        if(w === undefined){
+          throw new Error('No workers available');
+        }
+    
+      }
+    
+      return w;
+    
+    }    
+
     exec(data){
 
+      let that = this;
       let w;
 
       try{
-        w = getWorker();
+        w = this.getWorker();
       } catch(e){
         return Promise.reject(e);
       }
@@ -86,7 +78,7 @@ module.exports = {
 
         w.on('message', (result) => {
 
-          releaseWorker(w);
+          that.releaseWorker(w);
 
           resolve(result);
 
@@ -94,7 +86,7 @@ module.exports = {
 
         w.on('error', (error) => {
 
-          releaseWorker(w);
+          that.releaseWorker(w);
 
           reject(error);
 
@@ -102,7 +94,7 @@ module.exports = {
 
         w.on('exit', (code) => {
 
-          releaseWorker(w);
+          that.releaseWorker(w);
 
           if(code != 0){
             reject(`Worker exited with non 0 code: ${code}`);
@@ -116,11 +108,21 @@ module.exports = {
 
     }
 
+    releaseWorker(w){
+
+      w.removeAllListeners('message');
+      w.removeAllListeners('error');
+      w.removeAllListeners('exit');
+    
+      this.pool.push(w);
+    
+    }
+
     shutdown(){
 
-      pool.forEach((w) => {
+      this.pool.forEach((w) => {
         w.terminate((error, exitCode) =>{
-          //eat shutdown errors
+          //eat shutdown errors for now
         });
       });
 
