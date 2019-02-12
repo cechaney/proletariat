@@ -30,6 +30,8 @@ module.exports = {
 
       EventEmitter.defaultMaxListeners = config.maxWorkers * 3;
 
+      const wp = this;
+
       for(var i = 0; i < this.maxWorkers; i++){
 
         let w = new Worker(script, {
@@ -37,7 +39,9 @@ module.exports = {
           workerData: config
         });
 
-        this.pool.push(w);
+        w.on('online', () => {
+          wp.pool.push(w);  
+        });
 
       }
 
@@ -110,6 +114,7 @@ module.exports = {
 
     releaseWorker(w){
 
+      w.removeAllListeners('online');
       w.removeAllListeners('message');
       w.removeAllListeners('error');
       w.removeAllListeners('exit');

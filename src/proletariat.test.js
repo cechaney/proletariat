@@ -9,7 +9,9 @@ test ('test constructor', () => {
     {maxWorkers: 1},
     script);
 
-  expect(pool).toBeDefined();
+  console.log('pool length:' + pool.pool.length);
+
+  expect(pool.pool.length).toEqual(1);
 
 });
 
