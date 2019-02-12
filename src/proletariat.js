@@ -1,8 +1,8 @@
 const {Worker} = require('worker_threads');
 const EventEmitter = require('events').EventEmitter;
 
-
 module.exports = {
+
   WorkerPool: class {
 
     constructor(config, script){
@@ -14,11 +14,11 @@ module.exports = {
 
       if(config){
 
-        if(config.maxWorkers && !isNaN(config.maxWorkers)){
+        if(config.hasOwnProperty('maxWorkers') && !isNaN(config.maxWorkers)){
           this.maxWorkers = config.maxWorkers;
         }
 
-        if(config.workerAquireTimeout){
+        if(config.hasOwnProperty('workerAquireTimeout')){
           this.workerAquireTimeout = config.workerAquireTimeout;
         }
 
