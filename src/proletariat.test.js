@@ -10,7 +10,7 @@ test ('test constructor', () => {
     script);
 
   /*
-  Yes, we didn't actually create any workers, but doing so makes Jest sad because it knows that 
+  Yes, we didn't actually create any workers with this test, but doing so makes Jest sad because it knows that 
   scripts have been started somewhere and doesn't know if they are done yet.
 
   Change the maxWorkers property to > 0 and receive the following message from Jest
