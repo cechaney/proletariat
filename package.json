@@ -4,8 +4,6 @@
   "description": "Super-simple Node.js worker thread pool",
   "main": "index.js",
   "scripts": {
-    "demo": "NODE_ENV=production node src/example/server",
-    "express-demo": "NODE_ENV=production node src/example/server",
     "test": "jest --detectOpenHandles"
   },
   "dependencies": {},
