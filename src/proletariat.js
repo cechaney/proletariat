@@ -39,9 +39,7 @@ module.exports = {
           workerData: config
         });
 
-        w.on('online', () => {
-          wp.pool.push(w);  
-        });
+      wp.pool.push(w);  
 
       }
 
