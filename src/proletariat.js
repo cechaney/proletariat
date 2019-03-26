@@ -24,7 +24,7 @@ module.exports = {
 
       }
 
-      if(script == null){
+      if(script === null){
         throw new Error('No script defined');
       }
 
