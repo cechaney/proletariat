@@ -10,16 +10,18 @@ test ('test constructor', () => {
     script);
 
   /*
-  Yes, we didn't actually create any workers with this test, but doing so makes Jest sad because it knows that 
+  Yes, we didn't actually create any workers with this test, but doing so makes Jest sad because it knows that
   scripts have been started somewhere and doesn't know if they are done yet.
 
   Change the maxWorkers property to > 0 and receive the following message from Jest
   "Jest has detected the following 1 open handle potentially keeping Jest from exiting"
-  
+
   Add to that the Jest process hangs and does not exit.
   */
 
   expect(pool).toBeDefined();
+
+  pool.shutdown();
 
 });
 
@@ -44,7 +46,7 @@ test ('test not enough workers', () => {
     slowScript);
 
   return slowPool.exec({name: 'Jill'}).then((result) => {
-    //do nothing  
+    slowPool.shutdown();
   }).catch((result) => {
     expect(result).toEqual(new Error('No workers available'));
   });

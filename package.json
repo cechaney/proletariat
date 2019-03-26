@@ -4,7 +4,7 @@
   "description": "Super-simple Node.js worker thread pool",
   "main": "index.js",
   "scripts": {
-    "test": "jest --detectOpenHandles"
+    "test": "jest --detectOpenHandles --forceExit"
   },
   "dependencies": {},
   "author": "Christopher Chaney (https://github.com/cechaney)",

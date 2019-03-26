@@ -39,7 +39,7 @@ module.exports = {
           workerData: config
         });
 
-      wp.pool.push(w);  
+        wp.pool.push(w);
 
       }
 
@@ -52,22 +52,22 @@ module.exports = {
     getWorker(){
 
       let w = this.pool.shift();
-    
+
       if(w === undefined){
-    
+
         setTimeout(() =>{
           w = this.pool.shift;
         }, this.workerAquireTimeout);
-    
+
         if(w === undefined){
           throw new Error('No workers available');
         }
-    
+
       }
-    
+
       return w;
-    
-    }    
+
+    }
 
     exec(data){
 
@@ -116,13 +116,12 @@ module.exports = {
 
     releaseWorker(w){
 
-      w.removeAllListeners('online');
       w.removeAllListeners('message');
       w.removeAllListeners('error');
       w.removeAllListeners('exit');
-    
+
       this.pool.push(w);
-    
+
     }
 
     shutdown(){
@@ -131,7 +130,10 @@ module.exports = {
         w.terminate((error, exitCode) =>{
           //eat shutdown errors for now
         });
+
       });
+
+      this.pool = [];
 
     }
 
