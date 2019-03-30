@@ -88,7 +88,7 @@ module.exports = {
 
           resolve(result);
 
-        })
+        });
 
         w.on('error', (error) => {
 
